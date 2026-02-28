@@ -19,10 +19,7 @@ public class MouseHandlerMixin {
     @Inject(method = "onButton", at = @At("HEAD"), cancellable = true)
     private void onButton(long window, MouseButtonInfo buttonInfo, int action, CallbackInfo ci) {
         if (action == 1) {
-            if (new InputEvent.Mouse.Press(buttonInfo).postAndCatch()) {
-                ci.cancel();
-                System.out.println("cancelled press");
-            }
+            if (new InputEvent.Mouse.Press(buttonInfo).postAndCatch()) ci.cancel();
         } else if (action == 0) {
             new InputEvent.Mouse.Release(buttonInfo).postAndCatch();
         }
