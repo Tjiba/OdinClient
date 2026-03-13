@@ -4,10 +4,10 @@ import com.odtheking.odin.clickgui.settings.impl.ActionSetting
 import com.odtheking.odin.clickgui.settings.impl.ListSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
+import com.odtheking.odin.events.GuiEvent
+import com.odtheking.odin.events.TickEvent
+import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
-import com.odtheking.odin.utils.containsOneOf
-import com.odtheking.odin.utils.equalsOneOf
-import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.utils.noControlCodes
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
@@ -15,6 +15,7 @@ import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.ClickType
 import starred.skies.odin.OdinClient
 import starred.skies.odin.utils.Skit
+import starred.skies.odin.utils.guiClick
 
 object AutoSell : Module(
     name = "Auto Sell",
@@ -31,50 +32,54 @@ object AutoSell : Module(
         OdinClient.moduleConfig.save()
     }
 
-    private var lastClickTime = 0L
+    private var last = 0L
+    private var next = 0L
+    private var inGui = false
 
     init {
-        schedule()
-    }
+        on<GuiEvent.Open> {
+            inGui = screen.title?.string in listOf("Trades", "Booster Cookie", "Farm Merchant", "Ophelia")
+        }
 
-    private fun schedule() {
-        val randomDelay = delay + (if (randomization > 0) (0..randomization).random() else 0)
+        on<GuiEvent.Close> {
+            inGui = false
+        }
 
-        schedule(randomDelay) {
-            click()
-            schedule()
+        on<TickEvent.Start> {
+            if (sellList.isEmpty()) return@on
+            if (!inGui) return@on
+
+            val menu = (mc.screen as? AbstractContainerScreen<*>)?.menu ?: return@on
+            val now = System.currentTimeMillis()
+            if (now - last < next) return@on
+
+            for (s in menu.slots) {
+                if (s.container !is Inventory) continue
+
+                val stack = s.item.takeIf { !it.isEmpty } ?: continue
+                val name = stack.hoverName?.string?.noControlCodes ?: continue
+
+                if (!sellList.any { name.contains(it, true) }) continue
+                if (blacklist.any { name.contains(it, true) }) continue
+
+                guiClick(menu.containerId, s.index, clickType = clickType1.get())
+                last = now
+                delay()
+
+                break
+            }
         }
     }
 
-    private fun click() {
-        if (!enabled || sellList.isEmpty()) return
+    private fun delay() {
+        next = ((delay + (0..randomization).random()) * 50).toLong()
+    }
 
-        val currentTime = System.currentTimeMillis()
-        if (currentTime - lastClickTime < 50) return
-
-        val container = mc.screen as? AbstractContainerScreen<*> ?: return
-        val player = mc.player ?: return
-        val title = container.title?.string ?: return
-
-        if (!title.equalsOneOf("Trades", "Booster Cookie", "Farm Merchant", "Ophelia")) return
-
-        val slots = container.menu.slots
-        val idx = slots.filter { it.container is Inventory }
-            .firstOrNull {
-                val stack = it.item ?: return@firstOrNull false
-                if (stack.isEmpty) return@firstOrNull false
-                stack.hoverName?.string?.noControlCodes?.containsOneOf(sellList, ignoreCase = true) == true
-            }?.index ?: return
-
-        val clickType = when (clickType1) {
-            0 -> ClickType.QUICK_MOVE
-            1 -> ClickType.CLONE
-            2 -> ClickType.PICKUP
-            else -> ClickType.QUICK_MOVE
-        }
-
-        mc.gameMode?.handleInventoryMouseClick(container.menu.containerId, idx, 0, clickType, player)
-        lastClickTime = currentTime
+    private fun Int.get() = when (this) {
+        0 -> ClickType.QUICK_MOVE
+        1 -> ClickType.CLONE
+        2 -> ClickType.PICKUP
+        else -> ClickType.QUICK_MOVE
     }
 
     private val defaultItems = arrayOf(
@@ -86,4 +91,7 @@ object AutoSell : Module(
         "enchanted bone", "defuse kit", "optical lens", "tripwire hook", "button", "carpet", "lever", "diamond atom",
         "healing viii splash potion", "healing 8 splash potion", "candycomb"
     )
+
+    private val blacklist = listOf("skeleton master chestplate")
+
 }
