@@ -1,24 +1,22 @@
 [versions]
-loom = "1.14-SNAPSHOT"
+loom = "1.15-SNAPSHOT"
 fletchingTable = "0.1.0-alpha.22"
 ksp = "2.3.0"
 kotlin = "2.3.0"
 
-devauth = "1.2.1"
+devauth = "1.2.2"
 commodore = "1.0.1"
 
-fabric-loader = "0.17.3"
+fabric-loader = "0.18.4"
 fabric-language-kotlin = "1.13.8+kotlin.2.3.0"
 
-fabric-api-1-21-8 = "0.136.1+1.21.8"
-fabric-api-1-21-10 = "0.138.3+1.21.10"
+fabric-api-1-21-11 = "0.141.2+1.21.11"
 
-odin-act-1-21-10 = "e2cf40d9aa"
-odin-prod-1-21-10 = "b1wkliTK"
+odin-act-1-21-11 = "e2cf40d9aa"
+odin-prod-1-21-11 = "8ebo5Gr1"
 
-firmament-1-21-10 = "42.0.0+mc1.21.10"
-
-parchment-1-21-10 = "2025.10.12"
+firmament-1-21-11 = "44.0.0+mc1.21.11"
+parchment-1-21-11 = "2025.12.20"
 
 # needed by odin to work properly in dev env as we use modrinth which doesn't provide the transitive dependencies
 okhttp = "5.2.1"
@@ -32,15 +30,14 @@ fabric-language-kotlin = { module = "net.fabricmc:fabric-language-kotlin", versi
 devauth = { module = "me.djtheredstoner:DevAuth-fabric", version.ref = "devauth" }
 commodore = { module = "com.github.stivais:Commodore", version.ref = "commodore" }
 
-fabric-api-1-21-8 = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api-1-21-8" }
-fabric-api-1-21-10 = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api-1-21-10" }
+fabric-api-1-21-11 = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api-1-21-11" }
 
-odin-act-1-21-10 = { module = "maven.modrinth:odin", version.ref = "odin-act-1-21-10" }
-odin-prod-1-21-10 = { module = "maven.modrinth:odin", version.ref = "odin-prod-1-21-10" }
+odin-act-1-21-11 = { module = "maven.modrinth:odin", version.ref = "odin-act-1-21-11" }
+odin-prod-1-21-11 = { module = "maven.modrinth:odin", version.ref = "odin-prod-1-21-11" }
 
-firmament-1-21-10 = { module = "maven.modrinth:firmament", version.ref = "firmament-1-21-10" }
+firmament-1-21-11 = { module = "maven.modrinth:firmament", version.ref = "firmament-1-21-11" }
 
-parchment-1-21-10 = { module = "org.parchmentmc.data:parchment-1.21.10", version.ref = "parchment-1-21-10" }
+parchment-1-21-11 = { module = "org.parchmentmc.data:parchment-1.21.11", version.ref = "parchment-1-21-11" }
 
 # needed by odin to work properly in dev env as we use modrinth which doesn't provide the transitive dependencies
 okhttp = { module = "com.squareup.okhttp3:okhttp-jvm", version.ref = "okhttp" }
