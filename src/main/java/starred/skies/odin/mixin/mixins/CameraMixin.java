@@ -16,7 +16,7 @@ import starred.skies.odin.features.impl.cheats.CameraHelper;
 public class CameraMixin {
     @WrapOperation(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getAttributeValue(Lnet/minecraft/core/Holder;)D"))
     private double onSetup(LivingEntity instance, Holder<Attribute> attribute, Operation<Double> original) {
-        return CameraHelper.INSTANCE.getEnabled() && CameraHelper.INSTANCE.getEnableDist() ? CameraHelper.INSTANCE.getCameraDist() : 0;
+        return CameraHelper.INSTANCE.getEnabled() && CameraHelper.INSTANCE.getEnableDist() ? CameraHelper.INSTANCE.getCameraDist() : instance.getAttributeValue(attribute);
     }
 
     @Inject(method = "getMaxZoom", at = @At("HEAD"), cancellable = true)
