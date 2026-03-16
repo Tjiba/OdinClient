@@ -15,6 +15,7 @@ import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.Style
+import starred.skies.odin.commands.autoClickerCommand
 import starred.skies.odin.commands.autoSellCommand
 import starred.skies.odin.commands.highlightCommand
 import starred.skies.odin.commands.streamCommand
@@ -26,7 +27,7 @@ import java.net.URI
 
 object OdinClient : ClientModInitializer {
     private val commandsToRegister: Array<Commodore> = arrayOf(
-        autoSellCommand, streamCommand, highlightCommand
+        autoSellCommand, streamCommand, highlightCommand, autoClickerCommand
     )
 
     private val modulesToRegister: Array<Module> = arrayOf(

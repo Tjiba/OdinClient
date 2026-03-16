@@ -39,6 +39,7 @@ import com.mojang.serialization.JsonOps
 import kotlinx.coroutines.*
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
+import starred.skies.odin.utils.asJsonObjectOrNull
 import java.io.File
 import kotlin.jvm.optionals.getOrNull
 import kotlin.properties.ReadWriteProperty
@@ -55,8 +56,8 @@ class Scribble(private val path: String) {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private var root: JsonObject? = null
-    private var isDirty = false
-    private var saveJob: Job? = null
+    private var dirty = false
+    private var job: Job? = null
 
     private fun <T : Any> JsonElement?.toData(codec: Codec<T>): T? = codec.parse(JsonOps.INSTANCE, this).result().getOrNull()
     private fun <T : Any> T.toJson(codec: Codec<T>): JsonElement? = codec.encodeStart(JsonOps.INSTANCE, this).result().getOrNull()
@@ -64,23 +65,18 @@ class Scribble(private val path: String) {
     init {
         ClientLifecycleEvents.CLIENT_STOPPING.register { _ ->
             scope.launch {
-                saveJob?.cancelAndJoin()
+                job?.cancelAndJoin()
                 save()
             }
         }
     }
 
     private fun load(): JsonObject {
-        root?.let { return it }
+        if (root != null) return root!!
 
         root = try {
-            if (file.exists() && file.length() > 0) {
-                val content = file.readText()
-                val element = JsonParser.parseString(content)
-                if (element.isJsonObject) element.asJsonObject.getAsJsonObject("@odinClient:data") else JsonObject()
-            } else {
-                JsonObject()
-            }
+            if (!file.exists() || file.length() <= 0) JsonObject()
+            else JsonParser.parseString(file.readText()).asJsonObjectOrNull?.get("@odinClient:data")?.asJsonObjectOrNull ?: JsonObject()
         } catch (e: Exception) {
             JsonObject()
         }
@@ -89,7 +85,7 @@ class Scribble(private val path: String) {
     }
 
     private fun save() {
-        if (!isDirty) return
+        if (!dirty) return
 
         try {
             val data = root ?: return
@@ -107,99 +103,89 @@ class Scribble(private val path: String) {
                 tempFile.delete()
             }
 
-            isDirty = false
-        } catch (e: Exception) {
-        }
+            dirty = false
+        } catch (e: Exception) {}
     }
 
-    private fun markDirty() {
-        isDirty = true
-        scheduleSave()
-    }
-
-    private fun scheduleSave() {
-        saveJob?.cancel()
-        saveJob = scope.launch {
+    fun dirty() {
+        dirty = true
+        job?.cancel()
+        job = scope.launch {
             delay(5000)
             save()
         }
     }
 
-    /**
-     * Reloads data from disk, discarding any unsaved changes.
-     */
+
     fun reload() {
         root = null
-        isDirty = false
+        dirty = false
     }
 
-    /**
-     * Internal property delegate for codec-based values.
-     *
-     * @param T The type of value to store
-     * @property key The key to store the value under
-     * @property default The default value if the key doesn't exist
-     * @property codec The codec for serialization/deserialization
-     */
+    fun jsonObject(key: String, default: JsonObject = JsonObject()) = object : ReadWriteProperty<Any?, JsonObject> {
+        override fun getValue(thisRef: Any?, property: KProperty<*>): JsonObject {
+            val obj = load()
+
+            if (!obj.has(key)) {
+                obj.add(key, default)
+                dirty()
+            }
+
+            return obj.getAsJsonObject(key)
+        }
+
+        override fun setValue(thisRef: Any?, property: KProperty<*>, value: JsonObject) {
+            load().add(key, value)
+            dirty()
+        }
+    }
+
     inner class Value<T : Any>(
         private val key: String,
         private val default: T,
         private val codec: Codec<T>
     ) : ReadWriteProperty<Any?, T> {
-        override fun getValue(thisRef: Any?, property: KProperty<*>): T {
-            return load().get(key)?.toData(codec) ?: default
+        var value: T
+            get() = load().get(key)?.toData(codec) ?: default
+            set(value) {
+                value.toJson(codec)?.let {
+                    load().add(key, it)
+                    dirty()
+                }
+            }
+
+        init {
+            val obj = load()
+
+            if (!obj.has(key)) default.toJson(codec)?.let {
+                obj.add(key, it)
+                dirty()
+            }
         }
 
+        override fun getValue(thisRef: Any?, property: KProperty<*>): T = value
+
         override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
-            value.toJson(codec)?.let {
-                load().add(key, it)
-                markDirty()
-            }
+            this.value = value
+        }
+
+        fun update(block: T.() -> Unit) {
+            value = value.apply(block)
         }
     }
 
-    /**
-     * Creates a delegated property for storing an Int.
-     */
     fun int(key: String, default: Int = 0) = Value(key, default, Codec.INT)
-
-    /**
-     * Creates a delegated property for storing a Long.
-     */
     fun long(key: String, default: Long = 0L) = Value(key, default, Codec.LONG)
-
-    /**
-     * Creates a delegated property for storing a String.
-     */
     fun string(key: String, default: String = "") = Value(key, default, Codec.STRING)
-
-    /**
-     * Creates a delegated property for storing a Boolean.
-     */
     fun boolean(key: String, default: Boolean = false) = Value(key, default, Codec.BOOL)
-
-    /**
-     * Creates a delegated property for storing a Double.
-     */
     fun double(key: String, default: Double = 0.0) = Value(key, default, Codec.DOUBLE)
-
-    /**
-     * Creates a delegated property for storing a Float.
-     */
     fun float(key: String, default: Float = 0f) = Value(key, default, Codec.FLOAT)
 
-    /**
-     * Creates a delegated property for storing a List.
-     */
     fun <T : Any> list(key: String, codec: Codec<T>, default: List<T> = emptyList()) = Value(key, default, codec.listOf())
-
-    /**
-     * Creates a delegated property for storing a Set.
-     */
     fun <T : Any> set(key: String, codec: Codec<T>, default: Set<T> = emptySet()) = Value(key, default, codec.listOf().xmap({ it.toSet() }, { it.toList() }))
-
-    /**
-     * Creates a delegated property for storing a Map.
-     */
     fun <K : Any, V : Any> map(key: String, keyCodec: Codec<K>, valueCodec: Codec<V>, default: Map<K, V> = emptyMap()) = Value(key, default, Codec.unboundedMap(keyCodec, valueCodec))
+
+    fun <T : Any> mutableList(key: String, codec: Codec<T>, default: MutableList<T> = mutableListOf()) = Value(key, default, codec.listOf().xmap({ it.toMutableList() }, { it.toList() }))
+    fun <T : Any> mutableSet(key: String, codec: Codec<T>, default: MutableSet<T> = mutableSetOf()) = Value(key, default, codec.listOf().xmap({ it.toMutableSet() }, { it.toList() }))
+    fun <K : Any, V : Any> mutableMap(key: String, keyCodec: Codec<K>, valueCodec: Codec<V>, default: MutableMap<K, V> = mutableMapOf()) = Value(key, default, Codec.unboundedMap(keyCodec, valueCodec).xmap({ it.toMutableMap() }, { it.toMap() }))
 }
