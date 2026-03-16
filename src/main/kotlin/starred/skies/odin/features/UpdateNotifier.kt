@@ -21,6 +21,7 @@ object UpdateNotifier {
     private val versionRegex = Regex("""(\d+)\.(\d+)\.(\d+)(?:-r(\d+))?""") // https://regex101.com/r/An6dOq/1
     private var times: Int = 0
     private var latestVersion: Version? = null
+    private var bool = false
 
     private data class Version(
         val major: Int,
@@ -54,6 +55,8 @@ object UpdateNotifier {
     }
 
     private fun run() {
+        if (ModSettings.updateOnce && bool) return
+
         val current = OdinClient.MOD_VERSION.parse() ?: return
         val latest = latestVersion?.takeIf { it > current } ?: return
 
@@ -67,6 +70,7 @@ object UpdateNotifier {
                 }
 
             modMessage(message)
+            bool = true
         }
     }
 

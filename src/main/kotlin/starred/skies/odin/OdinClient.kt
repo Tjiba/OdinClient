@@ -18,6 +18,7 @@ import net.minecraft.network.chat.Style
 import starred.skies.odin.commands.autoSellCommand
 import starred.skies.odin.commands.highlightCommand
 import starred.skies.odin.commands.streamCommand
+import starred.skies.odin.features.ModSettings
 import starred.skies.odin.features.UpdateNotifier
 import starred.skies.odin.features.impl.cheats.*
 import starred.skies.odin.helpers.Scribble
@@ -32,7 +33,7 @@ object OdinClient : ClientModInitializer {
         CloseChest, DungeonAbilities, FuckDiorite, SecretHitboxes, BreakerHelper, KeyHighlight, LividSolver, SpiritBear, TriggerBot,
         Highlight, AutoClicker, Gloomlock, EscrowFix, AutoGFS, QueueTerms, AutoTerms, Trajectories, AutoSell, SimonSays, InventoryWalk,
         FarmKeys, AutoExperiments, EtherwarpHelper, GhostBlock, DoorESP, CancelInteract, WorldScanner, AutoDojo, CheaterWardrobe,
-        CameraHelper
+        CameraHelper, ModSettings
     )
 
     private val mainFile: Scribble = Scribble("main")
@@ -40,7 +41,7 @@ object OdinClient : ClientModInitializer {
     private var lastInstall: String by mainFile.string("lastInstall")
     private var send: Boolean = true
 
-    const val MOD_VERSION: String = /*$ mod_version*/ "0.1.7-r1"
+    const val MOD_VERSION: String = /*$ mod_version*/ "0.1.7-r2"
     val moduleConfig: ModuleConfig = ModuleConfig("odinClient")
     val joinListeners = mutableListOf<() -> Unit>()
 
