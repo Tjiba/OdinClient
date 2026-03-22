@@ -6,6 +6,7 @@ import com.odtheking.odin.utils.Color
 import com.odtheking.odin.utils.modMessage
 import starred.skies.odin.OdinClient
 import starred.skies.odin.features.impl.cheats.Highlight
+import starred.skies.odin.features.impl.cheats.Highlight.highlightLineSet
 import starred.skies.odin.features.impl.cheats.Highlight.highlightMap
 
 val highlightCommand = Commodore("highlight") {
@@ -36,6 +37,7 @@ val highlightCommand = Commodore("highlight") {
     literal("remove").runs { arg: GreedyString ->
         val key = arg.string.trim().lowercase()
         if (highlightMap.remove(key) == null) return@runs modMessage("\"$key\" isn't highlighted.")
+        highlightLineSet.remove(key)
 
         OdinClient.moduleConfig.save()
         modMessage("Removed \"$key\" from highlight list.")
@@ -45,6 +47,7 @@ val highlightCommand = Commodore("highlight") {
         if (highlightMap.isEmpty()) return@runs modMessage("Highlight list is already empty.")
 
         highlightMap.clear()
+        highlightLineSet.clear()
 
         OdinClient.moduleConfig.save()
         modMessage("Highlight list cleared.")

@@ -18,6 +18,7 @@ import net.minecraft.network.chat.Style
 import starred.skies.odin.commands.autoClickerCommand
 import starred.skies.odin.commands.autoSellCommand
 import starred.skies.odin.commands.highlightCommand
+import starred.skies.odin.commands.highlightLineCommand
 import starred.skies.odin.commands.streamCommand
 import starred.skies.odin.features.ModSettings
 import starred.skies.odin.features.UpdateNotifier
@@ -27,7 +28,7 @@ import java.net.URI
 
 object OdinClient : ClientModInitializer {
     private val commandsToRegister: Array<Commodore> = arrayOf(
-        autoSellCommand, streamCommand, highlightCommand, autoClickerCommand
+        autoSellCommand, streamCommand, highlightCommand, highlightLineCommand, autoClickerCommand
     )
 
     private val modulesToRegister: Array<Module> = arrayOf(
