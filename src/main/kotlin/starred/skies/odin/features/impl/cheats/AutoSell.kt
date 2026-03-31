@@ -37,12 +37,12 @@ object AutoSell : Module(
 
     init {
         //~ if >=1.21.11 'GuiEvent' -> 'ScreenEvent'
-        on<GuiEvent.Open> {
+        on<ScreenEvent.Open> {
             inGui = screen.title?.string in listOf("Trades", "Booster Cookie", "Farm Merchant", "Ophelia")
         }
 
         //~ if >=1.21.11 'GuiEvent' -> 'ScreenEvent'
-        on<GuiEvent.Close> {
+        on<ScreenEvent.Close> {
             inGui = false
         }
 

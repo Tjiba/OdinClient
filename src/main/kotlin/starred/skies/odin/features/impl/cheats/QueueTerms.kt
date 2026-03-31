@@ -5,7 +5,7 @@ import com.odtheking.odin.events.GuiEvent
 import com.odtheking.odin.events.*
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
-import com.odtheking.odin.features.impl/*? >= 1.21.11 {*//*.boss*//*? } else {*/.floor7/*? }*/.TerminalSolver
+import com.odtheking.odin.features.impl/*? >= 1.21.11 {*/.boss/*? } else {*//*.floor7*//*? }*/.TerminalSolver
 import com.odtheking.odin.utils.devMessage
 import com.odtheking.odin.utils.skyblock.dungeon.terminals.TerminalTypes
 import com.odtheking.odin.utils.skyblock.dungeon.terminals.TerminalUtils
@@ -35,7 +35,7 @@ object QueueTerms : Module(
                 if (
                     type == TerminalTypes.MELODY ||
                     //~ if >= 1.21.11 'TerminalSolver.renderType != 1' -> '!TerminalSolver.customGuiEnabled'
-                    TerminalSolver.renderType != 1 ||
+                    !TerminalSolver.customGuiEnabled ||
                     !isClicked ||
                     !canClick(slot, button)
                 ) return@on
@@ -48,12 +48,12 @@ object QueueTerms : Module(
         }
 
         //~ if >=1.21.11 'GuiEvent.DrawBackground' -> 'ScreenEvent.Render'
-        on<GuiEvent.DrawBackground> {
+        on<ScreenEvent.Render> {
             with(TerminalUtils.currentTerm ?: return@on) {
                 if (
                     type == TerminalTypes.MELODY ||
                     //~ if >= 1.21.11 'TerminalSolver.renderType != 1' -> '!TerminalSolver.customGuiEnabled'
-                    TerminalSolver.renderType != 1 ||
+                    !TerminalSolver.customGuiEnabled ||
                     System.currentTimeMillis() - lastClickTime < dispatchDelay ||
                     queue.isEmpty() ||
                     isClicked
@@ -70,7 +70,7 @@ object QueueTerms : Module(
         on<TerminalUpdateEvent> {
             with (TerminalUtils.currentTerm ?: return@on) {
                 //~ if >= 1.21.11 'TerminalSolver.renderType != 1' -> '!TerminalSolver.customGuiEnabled'
-                if (TerminalSolver.renderType != 1 || queue.isEmpty()) return@on
+                if (!TerminalSolver.customGuiEnabled || queue.isEmpty()) return@on
                 queue.forEach { simulateClick(it.slot, it.button) }
             }
         }

@@ -24,7 +24,7 @@ object AutoTerms : Module(
 
     init {
         //~ if >=1.21.11 'GuiEvent.DrawBackground' -> 'ScreenEvent.Render'
-        on<GuiEvent.DrawBackground> {
+        on<ScreenEvent.Render> {
             with (TerminalUtils.currentTerm ?: return@on) {
                 if (firstClick && (System.currentTimeMillis() - lastClickTime < firstClickDelay)) return@on
                 if (System.currentTimeMillis() - lastClickTime < autoDelay) return@on

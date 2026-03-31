@@ -30,7 +30,7 @@ object AutoExperiments : Module (
 
     init {
         //~ if >=1.21.11 'GuiEvent' -> 'ScreenEvent'
-        on<GuiEvent.Open> {
+        on<ScreenEvent.Open> {
             val title = screen.title?.string ?: return@on
 
             handler = when {
