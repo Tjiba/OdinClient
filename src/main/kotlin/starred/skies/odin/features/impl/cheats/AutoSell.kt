@@ -4,8 +4,7 @@ import com.odtheking.odin.clickgui.settings.impl.ActionSetting
 import com.odtheking.odin.clickgui.settings.impl.ListSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
-import com.odtheking.odin.events.GuiEvent
-import com.odtheking.odin.events.TickEvent
+import com.odtheking.odin.events.*
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.modMessage
@@ -37,11 +36,13 @@ object AutoSell : Module(
     private var inGui = false
 
     init {
-        on<GuiEvent.Open> {
+        //~ if >=1.21.11 'GuiEvent' -> 'ScreenEvent'
+        on<ScreenEvent.Open> {
             inGui = screen.title?.string in listOf("Trades", "Booster Cookie", "Farm Merchant", "Ophelia")
         }
 
-        on<GuiEvent.Close> {
+        //~ if >=1.21.11 'GuiEvent' -> 'ScreenEvent'
+        on<ScreenEvent.Close> {
             inGui = false
         }
 

@@ -35,7 +35,7 @@ object OdinClient : ClientModInitializer {
         CloseChest, DungeonAbilities, FuckDiorite, SecretHitboxes, BreakerHelper, KeyHighlight, LividSolver, SpiritBear, TriggerBot,
         Highlight, AutoClicker, Gloomlock, EscrowFix, AutoGFS, QueueTerms, AutoTerms, Trajectories, AutoSell, SimonSays, InventoryWalk,
         FarmKeys, AutoExperiments, EtherwarpHelper, GhostBlock, DoorESP, CancelInteract, WorldScanner, AutoDojo, CheaterWardrobe,
-        CameraHelper, ModSettings, AutoSuperboom
+        CameraHelper, ModSettings, AutoSuperboom, Ghosts
     )
 
     private val mainFile: Scribble = Scribble("main")
@@ -43,7 +43,7 @@ object OdinClient : ClientModInitializer {
     private var lastInstall: String by mainFile.string("lastInstall")
     private var send: Boolean = true
 
-    const val MOD_VERSION: String = /*$ mod_version*/ "0.1.7-r2"
+    const val MOD_VERSION: String = /*$ mod_version*/ "0.1.8-r1"
     val moduleConfig: ModuleConfig = ModuleConfig("odinClient")
     val joinListeners = mutableListOf<() -> Unit>()
 
