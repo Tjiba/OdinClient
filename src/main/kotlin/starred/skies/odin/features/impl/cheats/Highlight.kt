@@ -37,7 +37,7 @@ object Highlight : Module(
     private val depthCheck by BooleanSetting("Depth Check", false, desc = "Disable to enable ESP")
     private val highlightStar by BooleanSetting("Highlight Starred Mobs", true, desc = "Highlights starred dungeon mobs.")
     val color by ColorSetting("Highlight color", Colors.WHITE, true, desc = "The color of the highlight.")
-    private val renderStyle by SelectorSetting("Render Style", "Outline", listOf("Filled", "Outline", "Filled Outline"), desc = "Style of the box.")
+    private val renderStyle by SelectorSetting("Render Style", "Outline", listOf("Filled", "Outline"), desc = "Style of the box.")
     private val boxLineWidth by NumberSetting("Box Line Width", 2f, 0.5f, 10f, 0.5f, desc = "Width of the box outline.")
     private val enableTracer by BooleanSetting("Enable Tracer", true, desc = "Show tracer lines to highlighted entities.")
     private val tracerLineWidth by NumberSetting("Tracer Line Width", 3f, 0.5f, 10f, 0.5f, desc = "Width of the tracer line.")
@@ -172,10 +172,6 @@ object Highlight : Module(
         when (styleIndex) {
             0 -> drawFilledBox(aabb, color, depthCheck) // "Filled"
             1 -> drawWireFrameBox(aabb, color, lineWidth, depthCheck) // "Outline"
-            2 -> { // "Filled Outline"
-                drawFilledBox(aabb, color, depthCheck)
-                drawWireFrameBox(aabb, color, lineWidth, depthCheck)
-            }
         }
     }
 
